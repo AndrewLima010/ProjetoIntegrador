@@ -1,37 +1,34 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bierpdv.projetointegrador.controller;
 
-import com.bierpdv.projetointegrador.model.Produto;
 import com.bierpdv.projetointegrador.model.Venda;
 import com.bierpdv.projetointegrador.service.VendaService;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-public class VendaController extends HttpServlet {
-    private VendaService vendaService;
+@RestController
+@RequestMapping("/vendas")
+public class VendaController {
 
-    @Override
-    public void init() throws ServletException {
-        vendaService = new VendaService(); // Dependência de serviço
+    private final VendaService vendaService;
+
+    @Autowired
+    public VendaController(VendaService vendaService) {
+        this.vendaService = vendaService;
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String produtoNome = request.getParameter("produto");
-        double quantidade = Double.parseDouble(request.getParameter("quantidade"));
-
-        Produto produto = new Produto(produtoNome, 10.0); // Preço fixo apenas para exemplo
-        Venda venda = vendaService.registrarVenda(produto, quantidade);
-
-        request.setAttribute("venda", venda);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("venda.jsp");
-        dispatcher.forward(request, response);
+    @GetMapping("/test-connection")
+public String testConnection() {
+    return "Conexão com o banco de dados está funcionando!";
+}
+    
+    @PostMapping
+    public ResponseEntity<?> registrarVenda(@RequestParam Long produtoId, @RequestParam Long clienteId, @RequestParam int quantidade) {
+        try {
+            Venda venda = vendaService.registrarVenda(produtoId, clienteId, quantidade);
+            return ResponseEntity.status(201).body(venda);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -1,47 +1,32 @@
-// Validações e mensagens dinâmicas
-document.addEventListener("DOMContentLoaded", () => {
-    const formVenda = document.getElementById("form-venda");
-    const formProduto = document.getElementById("form-produto");
+document.getElementById("form-cliente").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    if (formVenda) {
-        formVenda.addEventListener("submit", (e) => {
-            e.preventDefault(); // Impede o envio padrão
-            const cliente = document.getElementById("cliente").value.trim();
-            const data = document.getElementById("data").value.trim();
-            const valor = document.getElementById("valor").value.trim();
+    const nome = document.getElementById("nome").value.trim();
+    const email = document.getElementById("email").value.trim();
 
-            let errorMessage = "";
-            if (!cliente) errorMessage += "O campo Cliente é obrigatório.\n";
-            if (!data) errorMessage += "O campo Data da Venda é obrigatório.\n";
-            if (!valor || valor <= 0) errorMessage += "O Valor Total deve ser maior que zero.\n";
-
-            if (errorMessage) {
-                alert(errorMessage); // Exibe erros
-            } else {
-                alert("Venda registrada com sucesso!");
-                formVenda.reset(); // Limpa o formulário
-            }
-        });
+    if (!nome || !email) {
+        alert("Nome e email são obrigatórios.");
+        return;
     }
 
-    if (formProduto) {
-        formProduto.addEventListener("submit", (e) => {
-            e.preventDefault(); // Impede o envio padrão
-            const nome = document.getElementById("nome").value.trim();
-            const preco = document.getElementById("preco").value.trim();
-            const estoque = document.getElementById("estoque").value.trim();
-
-            let errorMessage = "";
-            if (!nome) errorMessage += "O Nome do Produto é obrigatório.\n";
-            if (!preco || preco <= 0) errorMessage += "O Preço deve ser maior que zero.\n";
-            if (!estoque || estoque <= 0) errorMessage += "O Estoque deve ser maior que zero.\n";
-
-            if (errorMessage) {
-                alert(errorMessage); // Exibe erros
-            } else {
-                alert("Produto adicionado com sucesso!");
-                formProduto.reset(); // Limpa o formulário
-            }
+    try {
+        const response = await fetch('http://localhost:8082/clientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, email })
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(`Erro: ${errorData.error}`);
+            return;
+        }
+
+        const data = await response.json();
+        alert(`Cliente cadastrado com sucesso! ID: ${data.id}`);
+        document.getElementById("form-cliente").reset();
+    } catch (err) {
+        console.error('Erro ao enviar dados:', err);
+        alert('Erro ao cadastrar cliente. Tente novamente mais tarde.');
     }
 });

@@ -1,38 +1,41 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bierpdv.projetointegrador.model;
 
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.Date;
+
+@Getter
+@Setter
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Venda {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "produto_id")
     private Produto produto;
-    private double quantidade;
-    private double total;
 
-    public Venda(Produto produto, double quantidade) {
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
+    private Integer quantidade;
+    private LocalDateTime dataVenda = LocalDateTime.now();
+
+
+    public Venda(Produto produto, Cliente cliente, int quantidade) {
         this.produto = produto;
+        this.cliente = cliente;
         this.quantidade = quantidade;
-        this.total = produto.getPreco() * quantidade;
-    }
-
-    public Produto getProduto() {
-        return produto;
-    }
-
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
-
-    public double getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(double quantidade) {
-        this.quantidade = quantidade;
-        this.total = produto.getPreco() * quantidade;
-    }
-
-    public double getTotal() {
-        return total;
+        this.dataVenda = LocalDateTime.now(); // Data gerada automaticamente
     }
 }
